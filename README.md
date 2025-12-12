@@ -37,7 +37,7 @@ The module is structured into several key components:
 
 For example:
 ```bash
-python main.py --account_id 123455678912 --region eu-central-1
+python main.py --account_id 12345678912 --region eu-central-1
 ```
 The output will be:
 ```
