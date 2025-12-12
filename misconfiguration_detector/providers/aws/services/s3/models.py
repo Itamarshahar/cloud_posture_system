@@ -13,15 +13,22 @@ class S3Bucket(AwsResource):
     object_lock: bool = False
     logging: bool = False
     logging_target_bucket: bool = False
+
     def __init__(self, *, bucket_data: dict, aws_s3_client):
         self.client = aws_s3_client
         self.name = bucket_data.get("Name", "")
         self.resource_id = bucket_data.get("BucketArn", "")
         self._set_bucket_versioning()
         self._set_bucket_encryption()
+        self._set_bucket_logging()
+        self._set_object_lock_configuration()
+
     def _set_bucket_versioning(self):
+        logger.info(
+            f"S3 - set bucket versioning and mfa delete for bucket: {self.name}")
         try:
-            bucket_versioning = self.client.get_bucket_versioning(Bucket=self.name)
+            bucket_versioning = self.client.get_bucket_versioning(
+                Bucket=self.name)
             if "Status" in bucket_versioning:
                 if "Enabled" == bucket_versioning["Status"]:
                     self.versioning = True
@@ -29,35 +36,40 @@ class S3Bucket(AwsResource):
                 if "Enabled" == bucket_versioning["MFADelete"]:
                     self.mfa_delete = True
         except Exception as error:
-            logger.warning(f"Got an error while fetching bucket versioning. e={error}")
+            logger.warning(
+                f"Got an error while fetching bucket versioning. e={error}")
+
     def _set_bucket_encryption(self):
-        logger.info("S3 - Get buckets encryption...")
+        logger.info(f"S3 - set bucket encryption for bucket: {self.name}")
         try:
             self.encryption = self.client.get_bucket_encryption(
                 Bucket=self.name
-            )["ServerSideEncryptionConfiguration"]["Rules"][0]["ApplyServerSideEncryptionByDefault"]["SSEAlgorithm"]
+            )["ServerSideEncryptionConfiguration"]["Rules"][0][
+                "ApplyServerSideEncryptionByDefault"]["SSEAlgorithm"]
         except Exception as error:
             logger.warning(
                 f"Got an error while fetching bucket versioning. e={error}"
             )
 
-    def _get_object_lock_configuration(self):
-        logger.info("S3 - Get buckets ownership controls...")
+    def _set_object_lock_configuration(self):
+        logger.info(
+            f"S3 - set bucket lock configuration for bucket: {self.name}")
         try:
             self.client.get_object_lock_configuration(Bucket=self.name)
             self.object_lock = True
         except Exception as error:
             self.object_lock = False
-            logger.warning(f"Got an error while fetching bucket object lock configuration. e={error}")
+            logger.warning(
+                f"Got an error while fetching bucket object lock configuration. e={error}")
 
-    def _get_bucket_logging(self):
-        logger.info("S3 - Get buckets logging...")
+    def _set_bucket_logging(self):
+        logger.info(f"S3 - set bucket logging for bucket: {self.name}")
         try:
             bucket_logging = self.client.get_bucket_logging(Bucket=self.name)
             if "LoggingEnabled" in bucket_logging:
                 self.logging = True
                 self.logging_target_bucket = \
-                bucket_logging["LoggingEnabled"]["TargetBucket"]
+                    bucket_logging["LoggingEnabled"]["TargetBucket"]
         except ClientError as error:
             logger.warning(
                 f"Got an error while fetching bucket object lock configuration. e={error}")

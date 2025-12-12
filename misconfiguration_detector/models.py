@@ -2,6 +2,8 @@ import abc
 import typing
 import enum
 
+from misconfiguration_detector.utils.logging import logger
+
 
 class MisconfigurationSeverity(enum.Enum):
     INFO = "INFO"
@@ -44,7 +46,9 @@ class Misconfiguration(abc.ABC):
         raise NotImplementedError()
 
     def evaluate(self) -> None:
+        logger.info(f"Evaluating misconfiguration: {self.title}, Account ID: {self.account_id}")
         self._evaluate()
+        logger.info(f"Setting status for misconfiguration: {self.title}, Account ID: {self.account_id}")
         self.set_status()
 
     def set_status(self) -> None:
