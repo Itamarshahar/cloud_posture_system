@@ -7,7 +7,7 @@ from misconfiguration_detector.utils.logging import logger
 
 class S3BucketClient(AwsClient):
     def __init__(self, *, account_id: str, region_name: str = "eu-central-1"):
-        super().__init__()
+        super().__init__(account_id=account_id, region_name=region_name)
         self.account_id = account_id
         self.region_name = region_name
         self.aws_s3_client = boto3.client("s3", region_name=self.region_name)

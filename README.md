@@ -4,12 +4,12 @@
 ```bash
 python3 -m venv .venv \
 && source .venv/bin/activate \
-&& pip install --upgrade pip \
-&& pip install -r requirements.txt
+&& python -m pip install --upgrade pip \
+&& python -m pip install -r requirements.txt
 ```
 Install awscli and configure your environment:
 ```bash
-brew install awscli
+brew install awscli \
 && aws configure
 ```
 Verify installation:
@@ -35,7 +35,7 @@ python main.py --account_id <aws_account_id> --region <aws_region>
 ```
 For example:
 ```bash
-python main.py --account_id 123456789012 --region eu-central-1
+python main.py --account_id 767397816859 --region eu-central-1
 ```
 The output will be:
 ```
