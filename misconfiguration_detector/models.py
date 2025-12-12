@@ -13,6 +13,10 @@ class MisconfigurationSeverity(enum.Enum):
     CRITICAL = "CRITICAL"
 
 
+class SupportedProviders(enum.Enum):
+    AWS = "aws"
+
+
 class MisconfigurationStatus(enum.Enum):
     PASSED = "PASSED"
     FAILED = "FAILED"
@@ -35,9 +39,10 @@ class Misconfiguration(abc.ABC):
     account_id: str
     status: MisconfigurationStatus = MisconfigurationStatus.PENDING
 
-    def __init__(self, account_id: str, **data: typing.Any):
+    def __init__(self, account_id: str, region:str, **data: typing.Any):
         super().__init__(**data)
         self.account_id = account_id
+        self.region = region
         self.misconfigured_resources = []
         self.not_misconfigured_resources = []
 
@@ -47,12 +52,15 @@ class Misconfiguration(abc.ABC):
 
     def evaluate(self) -> None:
         try:
-            logger.info(f"Evaluating misconfiguration: {self.title}, Account ID: {self.account_id}")
+            logger.info(
+                f"Evaluating misconfiguration: {self.title}, Account ID: {self.account_id}")
             self._evaluate()
-            logger.info(f"Setting status for misconfiguration: {self.title}, Account ID: {self.account_id}")
+            logger.info(
+                f"Setting status for misconfiguration: {self.title}, Account ID: {self.account_id}")
             self.set_status()
         except Exception as error:
-            logger.error(f"Error evaluating misconfiguration [{self.title}] [{self.account_id}]: {error}")
+            logger.error(
+                f"Error evaluating misconfiguration [{self.title}] [{self.account_id}]: {error}")
             self.status = MisconfigurationStatus.FAILED
 
     def set_status(self) -> None:
@@ -97,9 +105,10 @@ class Misconfiguration(abc.ABC):
         print("\n")
 
 
-class SupportedProviders:
-    AWS = "aws"
-
-
-class Client(abc.ABC):
+class BaseClient(abc.ABC):
     provider_name: str
+    region_name: str
+
+    def __init__(self, *, account_id: str, region_name: str = "eu-central-1"):
+        self.account_id = account_id
+        self.region_name = region_name

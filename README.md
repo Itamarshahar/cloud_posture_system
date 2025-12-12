@@ -1,8 +1,6 @@
-
 # Setup instructions 
-## Quick Setup
 
-### macOS / Linux
+## macOS / Linux
 ```bash
 python3 -m venv .venv \
 && source .venv/bin/activate \
@@ -19,7 +17,17 @@ Verify installation:
 aws sts get-caller-identity
 ```
 
-# Documentation 
+# Documentation
+## Misconfigurations support:
+The module performs a security posture analysis of AWS S3 buckets, detecting the following misconfigurations:
+* S3 Bucket Default Encryption Disabled
+* S3 Bucket Object Versioning Disabled
+* S3 Bucket MFA Delete Not Enabled
+* S3 Bucket Object Lock Disabled
+## General structure:
+The module is structured into several key components:
+
+
 # practical examples illustrating the system's results
 
 ```bash

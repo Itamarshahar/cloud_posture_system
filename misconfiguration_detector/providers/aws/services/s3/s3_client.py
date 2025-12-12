@@ -1,5 +1,5 @@
+import typing
 import boto3
-
 from misconfiguration_detector.providers.aws.aws_client import AwsClient
 from misconfiguration_detector.providers.aws.services.s3.models import S3Bucket
 from misconfiguration_detector.utils.logging import logger
@@ -13,7 +13,7 @@ class S3BucketClient(AwsClient):
         self.aws_s3_client = boto3.client("s3", region_name=self.region_name)
         self.buckets = self.init_buckets()
 
-    def init_buckets(self):
+    def init_buckets(self) -> typing.List[S3Bucket]:
         try:
             buckets = []
             response = self.aws_s3_client.list_buckets()

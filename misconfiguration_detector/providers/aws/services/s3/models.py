@@ -1,3 +1,12 @@
+"""
+AWS S3 Bucket Resource Model.
+
+This module defines the S3Bucket class, which represents an Amazon S3 bucket
+and encapsulates logic for retrieving security-relevant configuration using
+the AWS SDK (boto3).
+
+"""
+import typing
 from typing import Optional
 from botocore.exceptions import ClientError
 from misconfiguration_detector.providers.aws.models import AwsResource
@@ -5,6 +14,21 @@ from misconfiguration_detector.utils.logging import logger
 
 
 class S3Bucket(AwsResource):
+    """
+    Represents an Amazon S3 bucket and its security configuration.
+
+
+    Attributes:
+        name (str): Bucket name.
+        resource_id (str): Bucket ARN.
+        encryption (Optional[str]): Server-side encryption algorithm if enabled.
+        versioning (bool): Whether bucket versioning is enabled.
+        mfa_delete (bool): Whether MFA Delete is enabled.
+        object_lock (bool): Whether Object Lock is enabled.
+        logging (bool): Whether access logging is enabled.
+        logging_target_bucket (Optional[str]): Target bucket for access logs.
+    """
+
     encryption: Optional[str]
     versioning: bool = False
     mfa_delete: bool = False
@@ -12,7 +36,7 @@ class S3Bucket(AwsResource):
     logging: bool = False
     logging_target_bucket: Optional[str] = None
 
-    def __init__(self, *, bucket_data: dict, aws_s3_client):
+    def __init__(self, *, bucket_data: typing.Dict, aws_s3_client):
         self.client = aws_s3_client
         self.name = bucket_data.get("Name", "")
         self.resource_id = bucket_data.get("BucketArn", "")
@@ -22,16 +46,17 @@ class S3Bucket(AwsResource):
         self._set_object_lock_configuration()
 
     def _set_bucket_versioning(self):
+        """
+        Sets bucket versioning and MFA Delete configuration.
+        """
         logger.info(f"S3 - checking versioning for bucket: {self.name}")
         try:
             response = self.client.get_bucket_versioning(Bucket=self.name)
-
             self.versioning = response.get("Status") == "Enabled"
             self.mfa_delete = response.get("MFADelete") == "Enabled"
 
         except ClientError as e:
             code = e.response["Error"]["Code"]
-
             if code == "AccessDenied":
                 logger.warning(f"S3 - access denied when reading versioning for {self.name}")
             elif code == "Throttling":
@@ -42,6 +67,9 @@ class S3Bucket(AwsResource):
             logger.error(f"S3 - unexpected response structure for versioning in {self.name}: {e}")
 
     def _set_bucket_encryption(self):
+        """
+        Sets default server-side encryption configuration for the bucket.
+        """
         logger.info(f"S3 - checking encryption for bucket: {self.name}")
         try:
             response = self.client.get_bucket_encryption(Bucket=self.name)
@@ -52,7 +80,6 @@ class S3Bucket(AwsResource):
 
         except ClientError as e:
             code = e.response["Error"]["Code"]
-
             if code == "ServerSideEncryptionConfigurationNotFoundError":
                 logger.info(f"S3 - encryption not enabled for bucket {self.name}")
                 self.encryption = None
@@ -62,13 +89,20 @@ class S3Bucket(AwsResource):
                 logger.warning(f"S3 - throttled while reading encryption for {self.name}")
             else:
                 logger.error(f"S3 - unexpected error getting encryption for {self.name}: {e}")
-        except KeyError as e:
-            logger.error(f"S3 - unexpected response structure for encryption in {self.name}: {e}")
-        except Exception as e:
-            logger.error(f"S3 - unexpected response structure for encryption in {self.name}: {e}")
 
+        except KeyError as e:
+            logger.error(
+                f"S3 - unexpected response structure for encryption in {self.name}: {e}"
+            )
+        except Exception as e:
+            logger.error(
+                f"S3 - unexpected response structure for encryption in {self.name}: {e}"
+            )
 
     def _set_object_lock_configuration(self):
+        """
+        Sets Object Lock configuration for the bucket.
+        """
         logger.info(f"S3 - checking object lock for bucket: {self.name}")
         try:
             self.client.get_object_lock_configuration(Bucket=self.name)
@@ -76,7 +110,6 @@ class S3Bucket(AwsResource):
 
         except ClientError as e:
             code = e.response["Error"]["Code"]
-
             if code in ("ObjectLockConfigurationNotFoundError", "InvalidRequest"):
                 self.object_lock = False
             elif code == "AccessDenied":
@@ -84,23 +117,28 @@ class S3Bucket(AwsResource):
             elif code == "Throttling":
                 logger.warning(f"S3 - throttled while reading object lock for {self.name}")
             else:
-                logger.error(f"S3 - unexpected error getting object lock for {self.name}: {e}")
+                logger.error(
+                    f"S3 - unexpected error getting object lock for {self.name}: {e}"
+                )
 
         except Exception as e:
-            logger.error(f"S3 - unexpected response structure for object lock in {self.name}: {e}")
+            logger.error(
+                f"S3 - unexpected response structure for object lock in {self.name}: {e}"
+            )
 
     def _set_bucket_logging(self):
+        """
+        Sets access logging configuration for the bucket.
+        """
         logger.info(f"S3 - checking access logging for bucket: {self.name}")
         try:
             response = self.client.get_bucket_logging(Bucket=self.name)
-
             if "LoggingEnabled" in response:
                 self.logging = True
                 self.logging_target_bucket = response["LoggingEnabled"]["TargetBucket"]
 
         except ClientError as e:
             code = e.response["Error"]["Code"]
-
             if code == "AccessDenied":
                 logger.warning(f"S3 - access denied when reading logging for {self.name}")
             elif code == "Throttling":
