@@ -38,6 +38,8 @@ class S3Bucket(AwsResource):
                 logger.warning(f"S3 - throttled while reading versioning for {self.name}")
             else:
                 logger.error(f"S3 - unexpected error getting versioning for {self.name}: {e}")
+        except Exception as e:
+            logger.error(f"S3 - unexpected response structure for versioning in {self.name}: {e}")
 
     def _set_bucket_encryption(self):
         logger.info(f"S3 - checking encryption for bucket: {self.name}")
@@ -60,6 +62,11 @@ class S3Bucket(AwsResource):
                 logger.warning(f"S3 - throttled while reading encryption for {self.name}")
             else:
                 logger.error(f"S3 - unexpected error getting encryption for {self.name}: {e}")
+        except KeyError as e:
+            logger.error(f"S3 - unexpected response structure for encryption in {self.name}: {e}")
+        except Exception as e:
+            logger.error(f"S3 - unexpected response structure for encryption in {self.name}: {e}")
+
 
     def _set_object_lock_configuration(self):
         logger.info(f"S3 - checking object lock for bucket: {self.name}")
@@ -79,6 +86,9 @@ class S3Bucket(AwsResource):
             else:
                 logger.error(f"S3 - unexpected error getting object lock for {self.name}: {e}")
 
+        except Exception as e:
+            logger.error(f"S3 - unexpected response structure for object lock in {self.name}: {e}")
+
     def _set_bucket_logging(self):
         logger.info(f"S3 - checking access logging for bucket: {self.name}")
         try:
@@ -97,3 +107,6 @@ class S3Bucket(AwsResource):
                 logger.warning(f"S3 - throttled while reading logging for {self.name}")
             else:
                 logger.error(f"S3 - unexpected error getting logging for {self.name}: {e}")
+
+        except Exception as e:
+            logger.error(f"S3 - unexpected response structure for logging in {self.name}: {e}")
