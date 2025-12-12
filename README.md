@@ -196,6 +196,3 @@ If an attacker gains access to valid IAM credentials, they can permanently delet
 Enable MFA Delete for highly sensitive buckets where operationally feasible, and restrict versioning and delete permissions to trusted principals only.
 https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiFactorAuthenticationDelete.html
 
-
-Ensure your repository includes both research findings and working code
-You may use official AWS documentation, security best practices guides, and standard developer resources.
