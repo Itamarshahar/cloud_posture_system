@@ -30,9 +30,12 @@ The module performs a security posture analysis of AWS S3 buckets, detecting the
 * S3 Bucket Object Lock Disabled
 ## General structure:
 The module is structured into several key components:
+1. setup_misconfigurations(): Initializes and configures the misconfiguration checks to be performed.
+2. evaluate_misconfigurations(): Executes the misconfiguration and prints the results.
 
+The representation of each resource is calculated once per execution to optimize performance. 
 
-# practical examples illustrating the system's results
+# Practical examples illustrating the system's results
 
 
 For example:
