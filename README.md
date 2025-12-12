@@ -16,6 +16,10 @@ Verify installation:
 ```bash
 aws sts get-caller-identity
 ```
+How to run:
+```bash
+python main.py --account_id <aws_account_id> --region <aws_region>
+```
 
 # Documentation
 ## Misconfigurations support:
@@ -30,12 +34,10 @@ The module is structured into several key components:
 
 # practical examples illustrating the system's results
 
-```bash
-python main.py --account_id <aws_account_id> --region <aws_region>
-```
+
 For example:
 ```bash
-python main.py --account_id 767397816859 --region eu-central-1
+python main.py --account_id 123455678912 --region eu-central-1
 ```
 The output will be:
 ```
