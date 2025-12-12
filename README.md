@@ -22,6 +22,94 @@ aws sts get-caller-identity
 # Documentation 
 # practical examples illustrating the system's results
 
+```bash
+python main.py --account_id <aws_account_id> --region <aws_region>
+```
+For example:
+```bash
+python main.py --account_id 123456789012 --region eu-central-1
+```
+The output will be:
+```
+================================================================================
+Misconfiguration: S3 Bucket Default Encryption Disabled
+Account: 123456789012 | Severity: HIGH | Status: PASSED
+================================================================================
+Description:
+  S3 Bucket does not have default encryption enabled.
+
+Remediation Steps:
+  Enable default server-side encryption on the S3 bucket to ensure that all objects are encrypted at rest. Enforcing encryption strengthens data protection and helps meet security and compliance requirements. You can enable default encryption using the AWS CLI with the following command: aws s3api put-bucket-encryption --bucket <BUCKET_NAME> --server-side-encryption-configuration '{"Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]}'. For additional guidance and best practices, refer to AWS documentation: https://aws.amazon.com/blogs/security/how-to-prevent-uploads-of-unencrypted-objects-to-amazon-s3/.
+
+Affected Resources:
+--------------------------------------------------------------------------------
+Name                           Resource ID                              Status    
+--------------------------------------------------------------------------------
+itamar-bucket-2                arn:aws:s3:::itamar-bucket-2             PASSED    
+not-encrypted-test             arn:aws:s3:::not-encrypted-test          PASSED    
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Misconfiguration: S3 Bucket Object Versioning Disabled
+Account: 123456789012 | Severity: HIGH | Status: FAILED
+================================================================================
+Description:
+  S3 Bucket does not have object versioning enabled.
+
+Remediation Steps:
+  Enable S3 bucket versioning to retain previous versions of objects and protect against accidental overwrites, deletions, and malicious modifications. Versioning is a foundational control for data recovery and ransomware resilience. You can enable versioning using the AWS Management Console or API. AWS guidance is available at: https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html. 
+
+Affected Resources:
+--------------------------------------------------------------------------------
+Name                           Resource ID                              Status    
+--------------------------------------------------------------------------------
+itamar-bucket-2                arn:aws:s3:::itamar-bucket-2             FAILED    
+not-encrypted-test             arn:aws:s3:::not-encrypted-test          FAILED    
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Misconfiguration: S3 Bucket MFA Delete Not Enabled
+Account: 123456789012 | Severity: MEDIUM | Status: FAILED
+================================================================================
+Description:
+  S3 Bucket does not have MFA Delete enabled.
+
+Remediation Steps:
+  Enable MFA Delete on the S3 bucket to require multi-factor authentication when changing the bucket versioning state or deleting object versions. This adds an additional layer of protection against accidental or malicious data deletion in the event of compromised IAM credentials. You can enable MFA Delete using the AWS CLI (requires root or privileged credentials): aws s3api put-bucket-versioning --profile <ROOT_PROFILE> --bucket <BUCKET_NAME> --versioning-configuration Status=Enabled,MFADelete=Enabled --mfa 'arn:aws:iam::<ACCOUNT_ID>:mfa/<MFA_DEVICE> <MFA_CODE>'. For more details, see AWS documentation: https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiFactorAuthenticationDelete.html. 
+
+Affected Resources:
+--------------------------------------------------------------------------------
+Name                           Resource ID                              Status    
+--------------------------------------------------------------------------------
+itamar-bucket-2                arn:aws:s3:::itamar-bucket-2             FAILED    
+not-encrypted-test             arn:aws:s3:::not-encrypted-test          FAILED    
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Misconfiguration: S3 Bucket Object Lock Disabled
+Account: 123456789012 | Severity: MEDIUM | Status: FAILED
+================================================================================
+Description:
+  S3 Bucket does not have Object Lock enabled.
+
+Remediation Steps:
+  Enable S3 Object Lock on the bucket to enforce write-once-read-many (WORM) protections. Object Lock prevents objects from being deleted or overwritten for a defined retention period, strengthening protection against ransomware and unauthorized data tampering, especially for backups and audit logs. Object Lock can be enabled using the AWS CLI as follows: aws s3 put-object-lock-configuration --bucket <BUCKET_NAME> --object-lock-configuration '{"ObjectLockEnabled":"Enabled","Rule":{"DefaultRetention":{"Mode":"GOVERNANCE","Days":1}}}'. For more information, see AWS documentation: https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock-overview.html. 
+
+Affected Resources:
+--------------------------------------------------------------------------------
+Name                           Resource ID                              Status    
+--------------------------------------------------------------------------------
+itamar-bucket-2                arn:aws:s3:::itamar-bucket-2             FAILED    
+not-encrypted-test             arn:aws:s3:::not-encrypted-test          FAILED    
+--------------------------------------------------------------------------------
+```
+
+
+
+
 # Cloud Posture Security Analysis for AWS S3
 Amazon Simple Storage Service (S3) is a highly scalable object storage service designed for storing and retrieving unstructured data at any scale.
 It is commonly used to host application assets, store backups and database exports, collect logs, and build data lakes. 
