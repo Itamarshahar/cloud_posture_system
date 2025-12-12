@@ -1,8 +1,5 @@
 from typing import Optional
-
 from misconfiguration_detector.providers.aws.models import AwsResource
-from botocore.client import ClientError
-
 from misconfiguration_detector.utils.logging import logger
 
 
@@ -48,7 +45,7 @@ class S3Bucket(AwsResource):
                 "ApplyServerSideEncryptionByDefault"]["SSEAlgorithm"]
         except Exception as error:
             logger.warning(
-                f"Got an error while fetching bucket versioning. e={error}"
+                f"Got an error while fetching bucket encryption. e={error}"
             )
 
     def _set_object_lock_configuration(self):
@@ -70,6 +67,6 @@ class S3Bucket(AwsResource):
                 self.logging = True
                 self.logging_target_bucket = \
                     bucket_logging["LoggingEnabled"]["TargetBucket"]
-        except ClientError as error:
+        except Exception as error:
             logger.warning(
-                f"Got an error while fetching bucket object lock configuration. e={error}")
+                f"Got an error while fetching bucket logging configuration. e={error}")

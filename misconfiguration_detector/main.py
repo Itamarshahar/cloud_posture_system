@@ -29,10 +29,13 @@ def setup(account_id: str, region: str):
 
 
 def evaluate_misconfigurations(account_id: str):
-    for cls_misconfig in MISCONFIGURATIONS:
-        misconfig = cls_misconfig(account_id=account_id)
-        misconfig.evaluate()
-        misconfig.print()
+    try:
+        for cls_misconfig in MISCONFIGURATIONS:
+            misconfig = cls_misconfig(account_id=account_id)
+            misconfig.evaluate()
+            misconfig.print()
+    except Exception as error:
+        logger.error(f"Error during misconfiguration evaluation: {error}, account_id={account_id}")
 
 
 if __name__ == '__main__':

@@ -46,10 +46,14 @@ class Misconfiguration(abc.ABC):
         raise NotImplementedError()
 
     def evaluate(self) -> None:
-        logger.info(f"Evaluating misconfiguration: {self.title}, Account ID: {self.account_id}")
-        self._evaluate()
-        logger.info(f"Setting status for misconfiguration: {self.title}, Account ID: {self.account_id}")
-        self.set_status()
+        try:
+            logger.info(f"Evaluating misconfiguration: {self.title}, Account ID: {self.account_id}")
+            self._evaluate()
+            logger.info(f"Setting status for misconfiguration: {self.title}, Account ID: {self.account_id}")
+            self.set_status()
+        except Exception as error:
+            logger.error(f"Error evaluating misconfiguration [{self.title}] [{self.account_id}]: {error}")
+            self.status = MisconfigurationStatus.FAILED
 
     def set_status(self) -> None:
         if self.misconfigured_resources:
